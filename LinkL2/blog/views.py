@@ -157,10 +157,12 @@ class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     def form_valid(self, form):
         instance = form.save(commit=False)
         instance.author = self.request.user
-        updated_image = self.request.FILES.get('image')
-        if updated_image:
-            instance.image = updated_image
         instance.save()
+        updated_image = self.request.FILES.get('image')
+        
+        if instance.postimage.image:
+            instance.postimage.delete()
+        PostImage(post=instance, image=updated_image).save()
         return super().form_valid(form)
 
     def get_object(self, queryset=None):
