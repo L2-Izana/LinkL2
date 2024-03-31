@@ -15,8 +15,8 @@
             </div>
             <h2 class="article-title">{{ object.title }}</h2>
             <p class="article-content">{{ object.content }}</p>
-            {% if post.image and post.image.url %}
-            <img src="{{ post.image.url }}" alt="" class="img-fluid" style="min-width: 100%">
+            {% if post.postimage %}
+                <img src="{{ post.postimage.image.url }}" class="img-fluid" style="min-width:100%">
             {% endif %}
         </div>
     </article>

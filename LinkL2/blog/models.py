@@ -8,7 +8,7 @@ class Post(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     author = models.ForeignKey(User, on_delete=models.CASCADE)
     title = models.CharField(max_length=100)
-    content = models.TextField()
+    content = models.TextField(null=True, blank=True)
     date_posted = models.DateTimeField(default=timezone.now)
     image = models.ImageField(null=True, blank=True, upload_to='post_pics')
 
@@ -17,6 +17,12 @@ class Post(models.Model):
     
     def get_absolute_url(self):
         return reverse("post-detail", kwargs={"id": self.id})
+
+class PostImage(models.Model):
+    post=models.OneToOneField(Post, on_delete=models.CASCADE)
+    image = models.ImageField(null=True, blank=True)
+    def __str__(self):
+        return f"Image for {self.post.title}"
     
 
 class React(models.Model):

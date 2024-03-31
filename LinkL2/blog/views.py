@@ -5,7 +5,7 @@ from django.db.models.query import QuerySet
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.http import HttpResponse, JsonResponse
-from .models import Post, React
+from .models import Post, React, PostImage
 from django.views.generic import (
     ListView, 
     DetailView,
@@ -18,13 +18,6 @@ from .forms import PostUploadForm
 from django.contrib import messages
 import pprint
 from .models import React, Comment
-
-
-def home(request):
-    context = {
-        'posts': Post.objects.all()
-    }
-    return render(request, 'blog/home.html', context)
 
 # Home page - CBV
 class PostListView(LoginRequiredMixin, ListView):
@@ -60,9 +53,6 @@ class PostListView(LoginRequiredMixin, ListView):
                 comments_dict[curr_post] = [(curr_user, curr_comment)]
             else:
                 comments_dict[curr_post].append((curr_user, curr_comment))
-        # for post_rec, user_comment_recs in comments_dict.items():
-        #     for user_comment_rec in user_comment_recs:
-        #         print(f"{user_comment_rec[0]} commented on {post_rec}: {user_comment_rec[1]}")
         return comments_dict
     
     def get_context_data(self, **kwargs):
@@ -76,7 +66,6 @@ class PostListView(LoginRequiredMixin, ListView):
     
     def post(self, request, *args, **kwargs):
         post_uploaded_form = PostUploadForm(request.POST, request.FILES)
-        print(post_uploaded_form.errors)
         if post_uploaded_form.is_valid():
             new_post = post_uploaded_form.save(commit=False)
             new_post.author = request.user
@@ -86,7 +75,6 @@ class PostListView(LoginRequiredMixin, ListView):
             return redirect('upload-post')
 
 
-# Home page - CBV
 class UserPostListView(LoginRequiredMixin, ListView):
     model = Post
     template_name = "blog/user_posts.html"
@@ -96,10 +84,36 @@ class UserPostListView(LoginRequiredMixin, ListView):
     def get_queryset(self):
         user = get_object_or_404(User, username=self.kwargs.get('username'))
         return Post.objects.filter(author=user).order_by('-date_posted')
+    
+    def get_latest_reacts(self, user, posts):
+        latest_reacts_dict = {}
+        for post in posts:
+            latest_react = React.objects.filter(user=user, post=post).order_by('-timestamp').first()
+            if latest_react is not None:
+                latest_reacts_dict[post] = latest_react.reaction
+            else:
+                latest_reacts_dict[post] = None
+        return latest_reacts_dict
 
-    def get_context_data(self, *args, **kwargs):
-        context = super().get_context_data(*args, **kwargs)
-        context['viewing_user'] = get_object_or_404(User, username=self.kwargs.get('username'))
+    def get_comments_dict(self):
+        comments_dict = {} # In form of: {post:[(user1, comment), (user2, comment), ...]}
+        comment_queryset = Comment.objects.all()
+        for comment_query in comment_queryset:
+            curr_post = comment_query.post
+            curr_user = comment_query.user
+            curr_comment = comment_query.comment
+            if curr_post not in comments_dict:
+                comments_dict[curr_post] = [(curr_user, curr_comment)]
+            else:
+                comments_dict[curr_post].append((curr_user, curr_comment))
+        return comments_dict
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        viewing_user=get_object_or_404(User, username=self.kwargs.get('username'))
+        context['latest_reacts_dict'] = self.get_latest_reacts(viewing_user, self.object_list)
+        context['comments_dict'] = self.get_comments_dict()
+        context['viewing_user'] = viewing_user
         return context
 
 
@@ -113,7 +127,7 @@ def save_reaction(request):
         return JsonResponse({'status': 'success'})
     else:
         return JsonResponse({'status': 'error'})
-
+    
 
 class PostDetailView(LoginRequiredMixin, DetailView):
     model = Post  
@@ -131,8 +145,8 @@ class PostCreateView(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         instance = form.save(commit=False)
         instance.author = self.request.user
-        instance.image = self.request.FILES.get('image')
         instance.save()
+        PostImage(post=instance, image=self.request.FILES.get('image')).save()
         return super().form_valid(form)
 
 

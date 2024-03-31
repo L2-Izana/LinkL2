@@ -63,37 +63,38 @@
 {% endblock styles %}
 
 {% block content%}
-    <!-- Post Upload -->
-    <article class="media content-section">
-        <img class="rounded-circle article-img" src="{{ user.profile.image.url }}">
-        <a class="mr-2" href="{% url "user-profile" user.username %}">{{ user.first_name|add:" "|add:user.last_name }}</a>
-        <p></p>
-        {% if upload_post %}
-            <form method="POST"  enctype="multipart/form-data">
-                {% csrf_token %}
-                <fieldset class="form-group">
-                    {{ post_upload_form|crispy }}       
-                </fieldset>
-                <button class="btn btn-outline-info" type="submit">Upload</button>
-            </form>
-        {% else %}
-            <a href="{% url "post-create" %}"><button type="submit" class="btn btn-primary">Upload your new post!</button></a>  
-        {% endif %}  
-    </article>
-    
+    {% block viewing_user_toggle %}
+        <!-- Post Upload -->
+        <article class="media content-section">
+            <img class="rounded-circle article-img" src="{{ user.profile.image.url }}">
+            <a class="mr-2" href="{% url "user-profile" user.username %}">{{ user.first_name|add:" "|add:user.last_name }}</a><p></p>
+            {% if upload_post %}
+                <form method="POST"  enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <fieldset class="form-group">
+                        {{ post_upload_form|crispy }}       
+                    </fieldset>
+                    <button class="btn btn-outline-info" type="submit">Upload</button>
+                </form>
+            {% else %}
+                <a href="{% url "post-create" %}"><button type="submit" class="btn btn-primary">Upload your new post!</button></a>  
+            {% endif %}  
+        </article>
+    {% endblock viewing_user_toggle %}
+
     <!-- Post List View -->
     {% for post, latest_react in latest_reacts_dict.items %}
     <article class="media content-section">
         <img class="rounded-circle article-img" src="{{ post.author.profile.image.url }}">
         <div class="media-body">
             <div class="article-metadata">
-                <a class="mr-2" href="{% url "user-posts" post.author.username %}">{{ post.author.first_name|add:" "|add:post.author.last_name }}</a>
+                <a class="mr-2" href="{% url "user-posts" post.author.username %}">{{ post.author.profile.name }}<a>
                 <small class="text-muted">{{ post.date_posted|date:"F d, Y" }}</small>
             </div>
             <h2><a class="article-title" href="{% url "post-detail" id=post.id %}">{{ post.title }}</a></h2>
             <p class="article-content">{{ post.content }}</p>
-            {% if post.image and post.image.url %}
-            <img src="{{ post.image.url }}" alt="" class="img-fluid" style="min-width: 100%">
+            {% if post.postimage %}
+                <img src="{{ post.postimage.image.url }}" class="img-fluid" style="min-width: 100%">
             {% endif %}
             
             <div class="reaction-comment">
@@ -125,8 +126,7 @@
                       </div>
                 </button>        
                 <button type="button" class="btn">💬 Comment</button>  
-                <button type="button" class="btn">Share</button>
-            </div>      
+                <button type="button" class="btn">Share</button></div>      
             <div class="comments">
                 {% with comments_dict|lookup:post as user_comment_records %}
                     {% for user_comment_record in user_comment_records %}
@@ -152,8 +152,7 @@
                         <a href="{% url "user-profile" user.username %}">{{ user.profile.name }}</a>
                         {% comment %} <form action="{% url "" %}"></form> {% endcomment %}
                     </div>
-                </div>
-            </div>
+                </div></div>
         </div>
     </article>
     {% endfor %}
