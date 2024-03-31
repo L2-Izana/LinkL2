@@ -93,7 +93,7 @@
             </div>
             <h2><a class="article-title" href="{% url "post-detail" id=post.id %}">{{ post.title }}</a></h2>
             <p class="article-content">{{ post.content }}</p>
-            {% if post.postimage %}
+            {% if post.postimage and post.postimage.image and post.postimage.image.url %}
                 <img src="{{ post.postimage.image.url }}" class="img-fluid" style="min-width: 100%">
             {% endif %}
             
