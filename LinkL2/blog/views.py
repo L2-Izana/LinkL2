@@ -161,7 +161,7 @@ class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         updated_image = self.request.FILES.get('image')
         if instance.postimage.image:
             instance.postimage.delete()
-        if updated_image:
+        if not instance.postimage.image or updated_image:
             PostImage(post=instance, image=updated_image).save()
         return super().form_valid(form)
 
