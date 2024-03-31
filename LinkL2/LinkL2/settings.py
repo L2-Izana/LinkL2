@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-b0a)s(v^i+10w_5q6u=bl^j!*0sa4^fyopjtzb6+w#+9z1a1_%
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -75,8 +75,12 @@ WSGI_APPLICATION = 'LinkL2.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'railway',
+        'USER': 'postgres',
+        'PASSWORD': 'tFdtGSRoHSeCiEVLRLrphNWpQVJEyXIj',
+        'HOST': 'roundhouse.proxy.rlwy.net',
+        'PORT': '59031',
     }
 }
 
