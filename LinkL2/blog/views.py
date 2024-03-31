@@ -14,7 +14,7 @@ from django.views.generic import (
     DeleteView
     )
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from .forms import PostUploadForm
+from .forms import PostCreateUpdateForm
 from django.contrib import messages
 import pprint
 from .models import React, Comment
@@ -43,7 +43,7 @@ class PostListView(LoginRequiredMixin, ListView):
         return latest_reacts_dict
 
     def get_comments_dict(self):
-        comments_dict = {} # In form of: {post:[(user1, comment), (user2, comment), ...]}
+        comments_dict = {} 
         comment_queryset = Comment.objects.all()
         for comment_query in comment_queryset:
             curr_post = comment_query.post
@@ -63,16 +63,6 @@ class PostListView(LoginRequiredMixin, ListView):
         context['latest_reacts_dict'] = self.get_latest_reacts(self.request.user, self.object_list)
         context['comments_dict'] = self.get_comments_dict()
         return context
-    
-    def post(self, request, *args, **kwargs):
-        post_uploaded_form = PostUploadForm(request.POST, request.FILES)
-        if post_uploaded_form.is_valid():
-            new_post = post_uploaded_form.save(commit=False)
-            new_post.author = request.user
-            new_post.save()
-            return redirect('blog-home')
-        else:
-            return redirect('upload-post')
 
 
 class UserPostListView(LoginRequiredMixin, ListView):
@@ -139,7 +129,7 @@ class PostDetailView(LoginRequiredMixin, DetailView):
 
 class PostCreateView(LoginRequiredMixin, CreateView):
     model = Post
-    fields = ['title','content', 'image']
+    form_class = PostCreateUpdateForm
     success_url = reverse_lazy('blog-home')
 
     def form_valid(self, form):
@@ -150,19 +140,17 @@ class PostCreateView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
 
+
 class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Post
-    fields = ['title', 'content', 'image']
+    form_class = PostCreateUpdateForm
 
     def form_valid(self, form):
         instance = form.save(commit=False)
         instance.author = self.request.user
         instance.save()
         updated_image = self.request.FILES.get('image')
-        if instance.postimage.image:
-            instance.postimage.delete()
-        if not instance.postimage.image or updated_image:
-            PostImage(post=instance, image=updated_image).save()
+        instance.postimage.image = updated_image
         return super().form_valid(form)
 
     def get_object(self, queryset=None):

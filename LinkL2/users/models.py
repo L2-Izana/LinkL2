@@ -5,7 +5,7 @@ from PIL import Image
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     sex = models.CharField(blank=False, null=False, max_length=1, choices=[('M', 'Male'), ('F', 'Female'), ('O', 'Other')], default='M')
-    image = models.ImageField(upload_to='profile_pics', default='default.jpg')
+    image = models.ImageField(default='default.jpg')
     curr_work = models.CharField(blank=True, null=True, max_length=100, verbose_name='Current work')
     highest_education = models.CharField(blank=True, null=True, max_length=100)
     curr_place = models.CharField(blank=True, null=True, max_length=100, verbose_name='Living place')

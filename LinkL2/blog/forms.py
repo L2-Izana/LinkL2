@@ -1,10 +1,10 @@
 from django import forms
 from .models import Post
 
-class PostUploadForm(forms.ModelForm):
-    title = forms.CharField(required=True)
-    content = forms.CharField(required=True, widget=forms.Textarea)
-    image = forms.ImageField(required=False)
+class PostCreateUpdateForm(forms.ModelForm):
+    title = forms.CharField(required=False)
+    content = forms.CharField(required=False, widget=forms.Textarea)
+    image = forms.ImageField()
 
     class Meta:
         model = Post

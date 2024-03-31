@@ -10,7 +10,6 @@ class Post(models.Model):
     title = models.CharField(max_length=100)
     content = models.TextField(null=True, blank=True)
     date_posted = models.DateTimeField(default=timezone.now)
-    image = models.ImageField(null=True, blank=True, upload_to='post_pics')
 
     def __str__(self):
         return self.title
