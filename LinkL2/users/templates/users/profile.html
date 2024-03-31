@@ -1,0 +1,58 @@
+{% extends "blog/base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+    {% if is_valid_user %}
+    <div class="content-section">
+        <div class="media">
+            <img src="{{ viewing_user.profile.image.url }}" class="rounded-circle account-img">
+            <div class="media-body">
+                <h2 class="account-heading">{{ viewing_user.first_name|add:" "|add:viewing_user.last_name }}</h2>
+                <p class="text-secondary"><b>Username:</b> {{ viewing_user.username }}</p>
+                {% if viewing_user.profile.sex == 'M' %}
+                    <p class="text-secondary"><b>Sex:</b> Male</p>
+                {% elif viewing_user.profile.sex == 'F' %}
+                    <p class="text-secondary"><b>Sex:</b> Female</p>
+                {% else %}
+                    <p class="text-secondary"><b>Sex:</b> Not Specified</p>
+                {% endif %}
+                <p class="text-secondary"><b>Email:</b> {{ viewing_user.email }}</p>
+                {% if viewing_user.profile.curr_work %}
+                <p class="text-secondary">Current work: {{ viewing_user.profile.curr_work }}</p>
+                {% endif %}
+                {% if viewing_user.profile.highest_education %}
+                <p class="text-secondary">Highest education: {{ viewing_user.profile.highest_education }}</p>
+                {% endif %}                {% if viewing_user.profile.curr_work %}
+                <p class="text-secondary">Current work: {{ viewing_user.profile.curr_work }}</p>
+                {% endif %}                {% if viewing_user.profile.curr_work %}
+                <p class="text-secondary">Current work: {{ viewing_user.profile.curr_work }}</p>
+                {% endif %}                {% if viewing_user.profile.curr_work %}
+                <p class="text-secondary">Current work: {{ viewing_user.profile.curr_work }}</p>
+                {% endif %}                {% if viewing_user.profile.curr_work %}
+                <p class="text-secondary">Current work: {{ viewing_user.profile.curr_work }}</p>
+                {% endif %}
+            </div>
+        </div>
+        {% if user == viewing_user %}
+            {% if need_update %}
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <fieldset class="form-group">
+                    <legend class="border-bottom mb-4">Profile Info</legend>
+                    {{ u_form|crispy }}
+                    {{ p_form|crispy }}
+                </fieldset>
+                <div class="form-group">
+                    <button class="btn btn-outline-info" type="submit">Update</button>
+                </div>
+            </form>
+            {% else %}
+            <form action="{% url "profile_update" user.username %}" method="GET">
+                <button type="submit">Update Profile</button>
+            </form>
+            {% endif %}
+        {% endif %}
+    </div>
+    {% else %}
+    <p>Not valid user</P>
+    {% endif%}
+{% endblock content %}

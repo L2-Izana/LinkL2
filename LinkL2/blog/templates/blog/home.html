@@ -1,0 +1,187 @@
+{% extends "blog/base.html" %}
+{% load crispy_forms_tags %}
+{% load custom_filters %}
+{% comment %} Specific Style {% endcomment %}
+{% block styles %}
+    <style>
+        .reaction-comment {
+        display: flex;
+        }
+
+        /* Styling for reaction and comment buttons */
+        .reaction-comment .btn {
+        flex: 1;
+        color: white;
+        background-color: transparent;
+        }
+
+        /* Styling for hover effect on buttons */
+        
+        .reaction-comment .btn:hover {
+        background-color: #6D7D8A;
+        color: white;
+        }
+          
+        .hidden {
+            display: none;
+        }
+          
+        .reaction-option {
+            display: inline-block;
+            margin-right: 5px;
+            font-size: 20px;
+        } 
+
+        .reaction-option:hover{
+            font-size: 25px;
+        }
+
+        .article-img-comment {
+            height: 35px;
+            width: 35px;
+            margin-right: 0px;
+        }
+        
+        .comment-box {
+            display: flex;
+            height: 60px;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+        
+        .image-wrapper {
+            flex: none; 
+            margin-right: 10px;
+        }
+        
+        .text-wrapper {
+            max-width: calc(100% - 60px);
+            overflow-wrap: break-word;
+        }
+        
+    </style>
+{% endblock styles %}
+
+{% block content%}
+    <!-- Post Upload -->
+    <article class="media content-section">
+        <img class="rounded-circle article-img" src="{{ user.profile.image.url }}">
+        <a class="mr-2" href="{% url "user-profile" user.username %}">{{ user.first_name|add:" "|add:user.last_name }}</a>
+        <p></p>
+        {% if upload_post %}
+            <form method="POST"  enctype="multipart/form-data">
+                {% csrf_token %}
+                <fieldset class="form-group">
+                    {{ post_upload_form|crispy }}       
+                </fieldset>
+                <button class="btn btn-outline-info" type="submit">Upload</button>
+            </form>
+        {% else %}
+            <a href="{% url "post-create" %}"><button type="submit" class="btn btn-primary">Upload your new post!</button></a>  
+        {% endif %}  
+    </article>
+    
+    <!-- Post List View -->
+    {% for post, latest_react in latest_reacts_dict.items %}
+    <article class="media content-section">
+        <img class="rounded-circle article-img" src="{{ post.author.profile.image.url }}">
+        <div class="media-body">
+            <div class="article-metadata">
+                <a class="mr-2" href="{% url "user-posts" post.author.username %}">{{ post.author.first_name|add:" "|add:post.author.last_name }}</a>
+                <small class="text-muted">{{ post.date_posted|date:"F d, Y" }}</small>
+            </div>
+            <h2><a class="article-title" href="{% url "post-detail" id=post.id %}">{{ post.title }}</a></h2>
+            <p class="article-content">{{ post.content }}</p>
+            {% if post.image and post.image.url %}
+            <img src="{{ post.image.url }}" alt="" class="img-fluid" style="min-width: 100%">
+            {% endif %}
+            
+            <div class="reaction-comment">
+                <button type="button" class="btn reaction-button" onmouseover="showReactions('{{ post.id }}')" onmouseout="hideReactions('{{ post.id }}')">                
+                    {% if latest_react %}
+                        {% if latest_react == "Like" %}
+                        <span id="post-{{ post.id }}">👍 Like</span>
+                        {% elif latest_react == "Love" %}
+                        <span id="post-{{ post.id }}">❤️ Love</span>
+                        {% elif latest_react == "Haha" %}
+                        <span id="post-{{ post.id }}">😂 Haha</span>
+                        {% elif latest_react == "Wow" %}
+                        <span id="post-{{ post.id }}">😮 Wow </span>
+                        {% elif latest_react == "Sad" %}
+                        <span id="post-{{ post.id }}">😢 Sad</span>
+                        {% elif latest_react == "Angry" %}
+                        <span id="post-{{ post.id }}">😠 Angry</span>
+                        {% endif %}
+                    {% else %}
+                        <span id="post-{{ post.id }}">React</span>     
+                    {% endif %}
+                    <div class="reaction-options hidden" id="reaction-options-{{ post.id }}">
+                        <div class="reaction-option" data-user-id="{{ user.id }}" data-post-id="{{ post.id }}" data-reaction="Like" onclick="handleReaction('Like', '{{post.id}}')">👍</div> <!-- Like -->
+                        <div class="reaction-option" data-user-id="{{ user.id }}" data-post-id="{{ post.id }}" data-reaction="Love" onclick="handleReaction('Love', '{{post.id}}')">❤️</div> <!-- Love -->
+                        <div class="reaction-option" data-user-id="{{ user.id }}" data-post-id="{{ post.id }}" data-reaction="Haha" onclick="handleReaction('Haha', '{{post.id}}')">😂</div> <!-- Haha -->
+                        <div class="reaction-option" data-user-id="{{ user.id }}" data-post-id="{{ post.id }}" data-reaction="Wow" onclick="handleReaction('Wow', '{{post.id}}')">😮</div> <!-- Wow -->
+                        <div class="reaction-option" data-user-id="{{ user.id }}" data-post-id="{{ post.id }}" data-reaction="Sad" onclick="handleReaction('Sad', '{{post.id}}')">😢</div> <!-- Sad -->
+                        <div class="reaction-option" data-user-id="{{ user.id }}" data-post-id="{{ post.id }}" data-reaction="Angry" onclick="handleReaction('Angry', '{{post.id}}')">😠</div> <!-- Angry -->
+                      </div>
+                </button>        
+                <button type="button" class="btn">💬 Comment</button>  
+                <button type="button" class="btn">Share</button>
+            </div>      
+            <div class="comments">
+                {% with comments_dict|lookup:post as user_comment_records %}
+                    {% for user_comment_record in user_comment_records %}
+                    {% with user_rec=user_comment_record|get_user comment_rec=user_comment_record|get_comment %}
+                    <div class="comment-box">
+                        <div class="image-wrapper">
+                            <img class="rounded-circle article-img-comment" src="{{ user_rec.profile.image.url }}">
+                        </div>
+                        <div class="text-wrapper">
+                            <a href="{% url "user-profile" user_rec.username %}">{{ user_rec.profile.name }}</a>
+                            <br>
+                            <small>{{ comment_rec }}</small>
+                        </div>
+                    </div>                    
+                    {% endwith %}
+                    {% endfor %}
+                {% endwith %}
+                <div class="comment-upload">
+                    <div class="image-wrapper">
+                        <img class="rounded-circle article-img-comment" src="{{ user.profile.image.url }}">
+                    </div>
+                    <div class="text-wrapper">
+                        <a href="{% url "user-profile" user.username %}">{{ user.profile.name }}</a>
+                        {% comment %} <form action="{% url "" %}"></form> {% endcomment %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </article>
+    {% endfor %}
+{% endblock content%}
+{% block pagination_controls %}
+<div class="pagination-controls" style="display: flex;
+justify-content: center;">
+{% if is_paginated %}
+    
+    {% if page_obj.has_previous %}
+    <a href="?page=1" class="btn btn-outline-info mb-4">First</a>
+    <a href="?page={{ page_obj.previous_page }}" class="btn btn-outline-info mb-4">Previous</a>
+    {% endif %}
+
+    {% for num in page_obj.paginator.page_range %}
+        {% if page_obj.number == num %}
+            <a href="?page={{ num }}" class="btn btn-info mb-4"> {{ num }}</a>
+        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+            <a href="?page={{ num }}" class="btn btn-outline-info mb-4">{{ num }}</a>
+        {% endif %}
+    {% endfor %}
+
+    {% if page_obj.has_next %}
+    <a href="?page={{ page_obj.next_page_number }}" class="btn btn-outline-info mb-4">Next</a>
+    <a href="?page={{ page_obj.paginator.num_pages }}" class="btn btn-outline-info mb-4">Last</a>
+    {% endif %}
+{% endif %}
+</div>
+{% endblock pagination_controls %}
+
+

@@ -36,6 +36,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'blog.apps.BlogConfig',
+    'users.apps.UsersConfig',
+    'crispy_forms',
+    'crispy_bootstrap5'
 ]
 
 MIDDLEWARE = [
@@ -130,3 +134,11 @@ STATIC_ROOT =os.path.join(BASE_DIR, 'staticfiles')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# Set the default template pack for Django Crispy Forms to use Bootstrap 5
+CRISPY_TEMPLATE_PACK = 'bootstrap5'
+
+# Specify the URL to redirect to for authentication
+LOGIN_URL = 'login'
+
+# Specify the URL to redirect to after a successful login
+LOGIN_REDIRECT_URL = 'blog-home'

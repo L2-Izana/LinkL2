@@ -1,0 +1,93 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    
+    <!-- Static CSS-->
+    <link rel="stylesheet" type="text/css" href="{% static "blog/main.css" %}">
+    {% block styles %}{% endblock %}
+
+    <!-- Static script -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="{% static 'blog/script.js' %}"></script>
+
+    <!-- Logic condition for title setting -->
+    {% if condition %}    
+        <title>Django Blog - {{ title }}</title>
+    {% else %}
+        <title>Django Blog</title>
+    {% endif %}
+</head>
+<body>
+    <!-- Additional navigational bar -->
+    <header class="site-header">
+      <nav class="navbar navbar-expand-md navbar-dark bg-steel fixed-top">
+          <div class="container">
+              <a class="navbar-brand mr-4" href="{% url "blog-home" %}">Django Blog</a>
+              <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggle" aria-controls="navbarToggle" aria-expanded="false" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon"></span>
+              </button>
+              <div class="collapse navbar-collapse" id="navbarToggle">
+                {% if user.is_authenticated %}
+                  <!-- Navbar Left Side -->
+                  <div class="navbar-nav mr-auto">
+                    <a class="nav-item nav-link" href="{% url "blog-home" %}">Home</a>
+                    <a class="nav-item nav-link" href="{% url "blog-about" %}">About</a>
+                    <a class = "nav-item nav-link" href="{% url "user-profile" user.username%}">Profile</a>
+                  </div>
+                  
+                  <!-- Navbar Right Side -->
+                  <div class="navbar-nav ms-md-auto">
+                    <form class="nav-item nav-link" method="post" action="{% url "logout" %}">
+                      {% csrf_token %}
+                      <button type="submit" class="btn btn-link nav-item nav-link">
+                        Log Out
+                      </button>
+                    </form>
+                  </div>
+                {% endif %}
+              </div>
+          </div>
+      </nav>
+  </header>
+    
+    <!-- Content (container class for centralization)-->
+    <main role="main" class="container">
+        <div class="row">
+          <div class="col-md-8">
+            {% if messages %}
+              {% for message in messages  %}
+                <div class="alert alert-{{ message.tags }}">
+                  {{ message }}
+                </div>
+              {% endfor %}
+            {% endif %}
+            {% block content %}{% endblock %}
+          </div>
+          <div class="col-md-4">
+            <div class="content-section">
+              <h3>Our Sidebar</h3>
+                  <ul class="list-group">
+                      <li class="list-group-item">Latest Posts</li>
+                      <li class="list-group-item">Announcements</li>
+                      <li class="list-group-item">Calendars</li>
+                      <li class="list-group-item">etc</li>
+                  </ul>
+              </p>
+          </div>
+        </div>
+    </main>
+
+    <!-- Pagination controls -->
+    {% block pagination_controls %}{% endblock %}
+
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+</body>
+</html>

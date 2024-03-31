@@ -1,0 +1,116 @@
+{% extends "blog/base.html" %}
+{% load crispy_forms_tags %}
+{% comment %} Specific Style {% endcomment %}
+{% block styles %}
+    <style>
+        .reaction-comment {
+        display: flex;
+        }
+
+        /* Styling for reaction and comment buttons */
+        .reaction-comment .btn {
+        flex: 1;
+        color: white;
+        background-color: transparent;
+        }
+
+        /* Styling for hover effect on buttons */
+        
+        .reaction-comment .btn:hover {
+        background-color: #6D7D8A;
+        color: white;
+        }
+          
+        .hidden {
+            display: none;
+        }
+          
+        .reaction-option {
+            display: inline-block;
+            margin-right: 5px;
+            font-size: 20px;
+        } 
+
+        .reaction-option:hover{
+            font-size: 25px;
+        }
+
+        .inline-h{
+            display: inline;
+        }
+    </style>
+{% endblock styles %}
+
+{% block content%}
+    <div class="content-section">
+        <img src="{{ viewing_user.profile.image.url }}" class="rounded-circle account-img">
+        <h2 class="account-heading inline-h">{{ viewing_user.profile.name }}</h2>
+        <div>
+            <a href="{% url "user-profile" viewing_user.username %}" class="btn btn-outline-secondary btn-lg">Profile</a>
+            <a href="{% url "user-posts" viewing_user.username %}" class="btn btn-outline-secondary btn-lg">Posts</a>
+            <a href="{% url "user-photos" viewing_user.username %}" class="btn btn-outline-secondary btn-lg">Photos</a>
+            <a href="{% url "user-friends" viewing_user.username %}" class="btn btn-outline-secondary btn-lg">Friends</a>
+            <a href="{% url "user-videos" viewing_user.username %}" class="btn btn-outline-secondary btn-lg">Videos</a>
+        </div> 
+    </div>
+    <h1 class="mb-3">Posts ({{ page_obj.paginator.count }})</h1>
+    
+    <!-- Post List View -->
+    {% for post in posts%}
+    <article class="media content-section">
+        <img class="rounded-circle article-img" src="{{ post.author.profile.image.url }}">
+        <div class="media-body">
+            <div class="article-metadata">
+                <a class="mr-2" href="{% url "user-profile" viewing_user.username%}">{{ post.author.first_name|add:" "|add:post.author.last_name }}</a>
+            </div>
+            <h2><a class="article-title" href="{% url "post-detail" id=post.id %}">{{ post.title }}</a></h2>
+            <p class="article-content">{{ post.content }}</p>
+            {% if post.image and post.image.url %}
+            <img src="{{ post.image.url }}" alt="" class="img-fluid" style="min-width: 100%">
+            {% endif %}
+            
+            <div class="reaction-comment">
+                <button type="button" class="btn reaction-button" onmouseover="showReactions('{{ post.id }}')" onmouseout="hideReactions('{{ post.id }}')">                
+                    <span id="post-{{ post.id }}">React</span>      
+                    <div class="reaction-options hidden" id="reaction-options-{{ post.id }}">
+                        <div class="reaction-option" data-user-id="{{ user.id }}" data-post-id="{{ post.id }}" data-reaction="Like" onclick="handleReaction('Like', '{{post.id}}')">👍</div> <!-- Like -->
+                        <div class="reaction-option" data-user-id="{{ user.id }}" data-post-id="{{ post.id }}" data-reaction="Love" onclick="handleReaction('Love', '{{post.id}}')">❤️</div> <!-- Love -->
+                        <div class="reaction-option" data-user-id="{{ user.id }}" data-post-id="{{ post.id }}" data-reaction="Haha" onclick="handleReaction('Haha', '{{post.id}}')">😂</div> <!-- Haha -->
+                        <div class="reaction-option" data-user-id="{{ user.id }}" data-post-id="{{ post.id }}" data-reaction="Wow" onclick="handleReaction('Wow', '{{post.id}}')">😮</div> <!-- Wow -->
+                        <div class="reaction-option" data-user-id="{{ user.id }}" data-post-id="{{ post.id }}" data-reaction="Sad" onclick="handleReaction('Sad', '{{post.id}}')">😢</div> <!-- Sad -->
+                        <div class="reaction-option" data-user-id="{{ user.id }}" data-post-id="{{ post.id }}" data-reaction="Angry" onclick="handleReaction('Angry', '{{post.id}}')">😠</div> <!-- Angry -->
+                      </div>
+                </button>        
+                <button type="button" class="btn">Comment</button>  
+            </div>      
+        </div>
+    </article>
+    {% endfor %}
+{% endblock content%}
+{% block pagination_controls %}
+<div class="pagination-controls" style="display: flex;
+justify-content: center;">
+{% if is_paginated %}
+    
+    {% if page_obj.has_previous %}
+    <a href="?page=1" class="btn btn-outline-info mb-4">First</a>
+    <a href="?page={{ page_obj.previous_page }}" class="btn btn-outline-info mb-4">Previous</a>
+    {% endif %}
+
+    {% for num in page_obj.paginator.page_range %}
+        {% if page_obj.number == num %}
+            <a href="?page={{ num }}" class="btn btn-info mb-4"> {{ num }}</a>
+        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+            <a href="?page={{ num }}" class="btn btn-outline-info mb-4">{{ num }}</a>
+        {% endif %}
+    {% endfor %}
+
+    {% if page_obj.has_next %}
+    <a href="?page={{ page_obj.next_page_number }}" class="btn btn-outline-info mb-4">Next</a>
+    <a href="?page={{ page_obj.paginator.num_pages }}" class="btn btn-outline-info mb-4">Last</a>
+    {% endif %}
+{% endif %}
+</div>
+{% endblock pagination_controls %}
+
+

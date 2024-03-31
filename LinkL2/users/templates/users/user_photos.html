@@ -1,0 +1,66 @@
+{% extends "blog/base.html" %}
+{% load crispy_forms_tags %}
+{% comment %} Specific Style {% endcomment %}
+{% block styles %}
+    <style>
+        .reaction-comment {
+        display: flex;
+        }
+
+        /* Styling for reaction and comment buttons */
+        .reaction-comment .btn {
+        flex: 1;
+        color: white;
+        background-color: transparent;
+        }
+
+        /* Styling for hover effect on buttons */
+        
+        .reaction-comment .btn:hover {
+        background-color: #6D7D8A;
+        color: white;
+        }
+          
+        .hidden {
+            display: none;
+        }
+          
+        .reaction-option {
+            display: inline-block;
+            margin-right: 5px;
+            font-size: 20px;
+        } 
+
+        .reaction-option:hover{
+            font-size: 25px;
+        }
+
+        .inline-h{
+            display: inline;
+        }
+    </style>
+{% endblock styles %}
+
+{% block content%}
+    <div class="content-section">
+        <img src="{{ viewing_user.profile.image.url }}" class="rounded-circle account-img">
+        <h2 class="account-heading inline-h">{{ viewing_user.profile.name }}</h2>
+        <div>
+            <a href="{% url "user-profile" viewing_user.username %}" class="btn btn-outline-secondary btn-lg">Profile</a>
+            <a href="{% url "user-posts" viewing_user.username %}" class="btn btn-outline-secondary btn-lg">Posts</a>
+            <a href="{% url "user-photos" viewing_user.username %}" class="btn btn-outline-secondary btn-lg">Photos</a>
+            <a href="{% url "user-friends" viewing_user.username %}" class="btn btn-outline-secondary btn-lg">Friends</a>
+            <a href="{% url "user-videos" viewing_user.username %}" class="btn btn-outline-secondary btn-lg">Videos</a>
+        </div> 
+    </div>
+    <h1 class="mb-3">Photos</h1>
+    
+    <!-- Post List View -->
+    {% for post in posts%}
+        {% if post.image and post.image.url %}
+        <img src="{{ post.image.url }}" alt="" class="img-fluid" style="min-width: 100%">
+        {% endif %}
+    {% endfor %}
+{% endblock content%}
+
+

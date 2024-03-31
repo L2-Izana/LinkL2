@@ -1,0 +1,47 @@
+{% extends "blog/base.html" %}
+{% block content %}
+    <div class="content-section">
+        <img src="{{ object.image.url }}" class="rounded-circle account-img">
+        <h2 class="account-heading" style="display: inline">{{ object.name }}</h2>
+        <div>
+            <a href="{% url "user-profile" object.user.username %}" class="btn btn-outline-secondary btn-lg">Profile</a>
+            <a href="{% url "user-posts" object.user.username %}" class="btn btn-outline-secondary btn-lg">Posts</a>
+            <a href="{% url "user-photos" object.user.username %}" class="btn btn-outline-secondary btn-lg">Photos</a>
+            <a href="{% url "user-friends" object.user.username %}" class="btn btn-outline-secondary btn-lg">Friends</a>
+            <a href="{% url "user-videos" object.user.username %}" class="btn btn-outline-secondary btn-lg">Videos</a>            
+        </div>
+    </div>
+    <h1>Profile</h1>
+    <div class="content-section">
+        <div class="media-body">
+            <p class="text-secondary"><b>Username:</b> {{ object.user.username }}</p>
+            {% if object.sex == 'M' %}
+                <p class="text-secondary"><b>Sex:</b> Male</p>
+            {% elif object.sex == 'F' %}
+                <p class="text-secondary"><b>Sex:</b> Female</p>
+            {% else %}
+                <p class="text-secondary"><b>Sex:</b> Not Specified</p>
+            {% endif %}
+            <p class="text-secondary"><b>Email:</b> {{ object.user.email }}</p>
+            {% if object.curr_work %}
+            <p class="text-secondary">Current work: {{ object.curr_work }}</p>
+            {% endif %}
+            {% if object.highest_education %}
+            <p class="text-secondary">Highest education: {{ object.highest_education }}</p>
+            {% endif %}                
+            {% if object.curr_place %}
+            <p class="text-secondary">Current living place: {{ object.curr_place }}</p>
+            {% endif %}                
+            {% if object.phone_contact %}
+            <p class="text-secondary">Phone number: {{ object.phone_contact }}</p>
+            {% endif %}                
+            {% if object.social_link %}
+            <p class="text-secondary">Social link: <a target="_blank" href="{{ object.social_link }}">{{ object.social_link }}</a></p>
+            {% endif %}                
+            {% if object.relationship %}
+            <p class="text-secondary">Current work: {{ object.relationship }}</p>
+            {% endif %}
+            <a class="btn btn-block btn-primary" href="{% url "profile-update" object.user.username%}">Edit Profile</a>
+        </div>
+    </div>
+{% endblock content %} 
