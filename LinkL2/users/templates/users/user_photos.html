@@ -43,7 +43,7 @@
 
 {% block content%}
     <div class="content-section">
-        <img src="{{ viewing_user.profile.image.url }}" class="rounded-circle account-img">
+        <img src="{{ viewing_user.profile.avatar.image.url }}" class="rounded-circle account-img">
         <h2 class="account-heading inline-h">{{ viewing_user.profile.name }}</h2>
         <div>
             <a href="{% url "user-profile" viewing_user.username %}" class="btn btn-outline-secondary btn-lg">Profile</a>
@@ -57,8 +57,8 @@
     
     <!-- Post List View -->
     {% for post in posts%}
-        {% if post.image and post.image.url %}
-        <img src="{{ post.image.url }}" alt="" class="img-fluid" style="min-width: 100%">
+        {% if post.postimage.image and post.postimage.image.url %}
+        <img src="{{ post.postimage.image.url }}" alt="" class="img-fluid" style="min-width: 100%">
         {% endif %}
     {% endfor %}
 {% endblock content%}

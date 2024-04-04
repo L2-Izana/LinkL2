@@ -1,7 +1,7 @@
 {% extends "blog/base.html" %}
 {% block content%}
     <article class="media content-section">
-        <img class="rounded-circle article-img" src="{{ object.author.profile.image.url }}">
+        <img class="rounded-circle article-img" src="{{ object.author.profile.avatar.image.url }}">
         <div class="media-body">
             <div class="article-metadata">
                 <a class="mr-2" href="{% url "user-profile" object.author.username %}">{{ object.author }}</a>
@@ -16,7 +16,7 @@
             <h2 class="article-title">{{ object.title }}</h2>
             <p class="article-content">{{ object.content }}</p>
             {% if post.postimage and post.postimage.image and post.postimage.image.url %}
-                <img src="{{ post.postimage.image.url }}" class="img-fluid" style="min-width:100%">
+                <img src="{{ post.postimage.image.url }}" class="img-fluid" style="width:80%">
             {% endif %}
         </div>
     </article>

@@ -1,7 +1,7 @@
 {% extends "blog/base.html" %}
 {% block content %}
     <div class="content-section">
-        <img src="{{ object.image.url }}" class="rounded-circle account-img">
+        <img src="{{ object.avatar.image.url }}" class="rounded-circle account-img">
         <h2 class="account-heading" style="display: inline">{{ object.name }}</h2>
         <div>
             <a href="{% url "user-profile" object.user.username %}" class="btn btn-outline-secondary btn-lg">Profile</a>
@@ -39,7 +39,7 @@
             <p class="text-secondary">Social link: <a target="_blank" href="{{ object.social_link }}">{{ object.social_link }}</a></p>
             {% endif %}                
             {% if object.relationship %}
-            <p class="text-secondary">Current work: {{ object.relationship }}</p>
+            <p class="text-secondary">Relationship: {{ object.relationship }}</p>
             {% endif %}
             <a class="btn btn-block btn-primary" href="{% url "profile-update" object.user.username%}">Edit Profile</a>
         </div>

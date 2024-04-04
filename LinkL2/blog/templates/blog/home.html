@@ -66,8 +66,8 @@
     {% block viewing_user_toggle %}
         <!-- Post Upload -->
         <article class="media content-section">
-            <img class="rounded-circle article-img" src="{{ user.profile.image.url }}">
-            <a class="mr-2" href="{% url "user-profile" user.username %}">{{ user.first_name|add:" "|add:user.last_name }}</a><p></p>
+            <img class="rounded-circle article-img" src="{{ user.profile.avatar.image.url }}">
+            <a class="mr-2" href="{% url "user-profile" user.username %}">{{ user.profile.name }}</a><p></p>
             {% if upload_post %}
                 <form method="POST"  enctype="multipart/form-data">
                     {% csrf_token %}
@@ -85,7 +85,7 @@
     <!-- Post List View -->
     {% for post, latest_react in latest_reacts_dict.items %}
     <article class="media content-section">
-        <img class="rounded-circle article-img" src="{{ post.author.profile.image.url }}">
+        <img class="rounded-circle article-img" src="{{ post.author.profile.avatar.image.url }}">
         <div class="media-body">
             <div class="article-metadata">
                 <a class="mr-2" href="{% url "user-posts" post.author.username %}">{{ post.author.profile.name }}<a>
@@ -133,7 +133,7 @@
                     {% with user_rec=user_comment_record|get_user comment_rec=user_comment_record|get_comment %}
                     <div class="comment-box">
                         <div class="image-wrapper">
-                            <img class="rounded-circle article-img-comment" src="{{ user_rec.profile.image.url }}">
+                            <img class="rounded-circle article-img-comment" src="{{ user_rec.profile.avatar.image.url }}">
                         </div>
                         <div class="text-wrapper">
                             <a href="{% url "user-profile" user_rec.username %}">{{ user_rec.profile.name }}</a>
@@ -146,11 +146,10 @@
                 {% endwith %}
                 <div class="comment-upload">
                     <div class="image-wrapper">
-                        <img class="rounded-circle article-img-comment" src="{{ user.profile.image.url }}">
+                        <img class="rounded-circle article-img-comment" src="{{ user.profile.avatar.image.url }}">
                     </div>
                     <div class="text-wrapper">
                         <a href="{% url "user-profile" user.username %}">{{ user.profile.name }}</a>
-                        {% comment %} <form action="{% url "" %}"></form> {% endcomment %}
                     </div>
                 </div></div>
         </div>
