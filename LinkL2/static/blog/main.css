@@ -1,94 +1,151 @@
 body {
-    background: #333333;
-    /* color: #333333; */
-    margin-top: 5rem;
-  }
+  background: #333333;
+  /* color: #333333; */
+  margin-top: 5rem;
+}
   
-  a {
-    text-decoration: none;
-  }
+a {
+  text-decoration: none;
+}
   
-  h1, h2, h3, h4, h5, h6 {
-    color: #1877f2;
-  }
+h1, h2, h3, h4, h5, h6 {
+  color: #1877f2;
+}
+
+ul {
+  margin: 0;
+}
+
+.bg-steel {
+  background-color: #5f788a;
+}
+
+.site-header .navbar-nav .nav-link {
+  color: #cbd5db;
+}
+
+.site-header .navbar-nav .nav-link:hover {
+  color: #ffffff;
+}
+
+.site-header .navbar-nav .nav-link.active {
+  font-weight: 500;
+}
+
+.content-section {
+  background: #36454F;
+  color: #ffffff;
+  padding: 10px 20px;
+  border: 1px solid #dddddd;
+  border-radius: 3px;
+  margin-bottom: 20px;
+}
+
+.list-group-item {
+  background-color: #2C3A43;
+  color: #ffffff; 
+}
+
+.list-group-item.list-group-item-action:hover {
+  background-color: grey;
+}
+
+
+.article-title {
+  color: #1877f2;
+}
+
+a.article-title:hover {
+  color: #428bca;
+  text-decoration: none;
+}
+
+.article-content {
+  white-space: pre-line;
+}
+
+.article-img {
+  height: 65px;
+  width: 65px;
+  margin-right: 16px;
+} 
+
+.article-metadata {
+  padding-bottom: 1px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid #e3e3e3
+}
+
+.article-metadata a:hover {
+  color: #333;
+  text-decoration: none;
+}
+
+.article-svg {
+  width: 25px;
+  height: 25px;
+  vertical-align: middle;
+}
+
+.account-img {
+  height: 125px;
+  width: 125px;
+  margin-right: 20px;
+  margin-bottom: 16px;
+}
+
+.account-heading {
+  font-size: 2.5rem;
+}
+
+.reaction-comment {
+  display: flex;
+}
+
+.reaction-comment .btn {
+flex: 1;
+color: white;
+background-color: transparent;
+}
+
+.reaction-comment .btn:hover {
+background-color: #6D7D8A;
+color: white;
+}
   
-  ul {
-    margin: 0;
-  }
+.hidden {
+    display: none;
+}
   
-  .bg-steel {
-    background-color: #5f788a;
-  }
-  
-  .site-header .navbar-nav .nav-link {
-    color: #cbd5db;
-  }
-  
-  .site-header .navbar-nav .nav-link:hover {
-    color: #ffffff;
-  }
-  
-  .site-header .navbar-nav .nav-link.active {
-    font-weight: 500;
-  }
-  
-  .content-section {
-    background: #36454F;
-    color: #ffffff;
-    padding: 10px 20px;
-    border: 1px solid #dddddd;
-    border-radius: 3px;
-    margin-bottom: 20px;
-  }
-  
-  .list-group-item {
-    background-color: #2C3A43;
-    color: #ffffff; 
-  }
-  
-  .article-title {
-    color: #1877f2;
-  }
-  
-  a.article-title:hover {
-    color: #428bca;
-    text-decoration: none;
-  }
-  
-  .article-content {
-    white-space: pre-line;
-  }
-  
-  .article-img {
-    height: 65px;
-    width: 65px;
-    margin-right: 16px;
-  } 
-  
-  .article-metadata {
-    padding-bottom: 1px;
-    margin-bottom: 4px;
-    border-bottom: 1px solid #e3e3e3
-  }
-  
-  .article-metadata a:hover {
-    color: #333;
-    text-decoration: none;
-  }
-  
-  .article-svg {
-    width: 25px;
-    height: 25px;
-    vertical-align: middle;
-  }
-  
-  .account-img {
-    height: 125px;
-    width: 125px;
-    margin-right: 20px;
-    margin-bottom: 16px;
-  }
-  
-  .account-heading {
-    font-size: 2.5rem;
-  }
+.reaction-option {
+    display: inline-block;
+    margin-right: 5px;
+    font-size: 20px;
+} 
+
+.reaction-option:hover{
+    font-size: 25px;
+}
+
+.article-img-comment {
+    height: 35px;
+    width: 35px;
+    margin-right: 0px;
+}
+
+.comment-box {
+    display: flex;
+    height: 60px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.image-wrapper {
+    flex: none; 
+    margin-right: 10px;
+}
+
+.text-wrapper {
+    max-width: calc(100% - 60px);
+    overflow-wrap: break-word;
+}

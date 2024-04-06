@@ -1,0 +1,181 @@
+{% extends "users/profile_detail.html" %}
+
+{% block sidebar %}
+    <div class="content-section">
+        <h3>Our Sidebar</h3>
+        <div class="list-group">
+            <a href="{% url "user-notifications" user.username %}">
+                <button type="button" class="list-group-item list-group-item-action list-group-item-dark">
+                Notifications
+                <span class="badge bg-primary rounded-pill">{{ notification_count }}</span> 
+                </button>
+            </a>
+            <a href="{% url "user-notifications" user.username %}">
+                <button type="button" class="list-group-item list-group-item-action list-group-item-dark">
+                Friends
+                </button>
+            </a>
+            <a href="{% url "user-tasks" user.username %}">
+                <button type="button" class="list-group-item list-group-item-action list-group-item-dark">
+                Tasks
+                </button>
+            </a>
+            <a href="#">
+                <button type="button" class="list-group-item list-group-item-action list-group-item-dark">
+                Calendar
+                </button>
+            </a>
+        </div>
+    </div>
+{% endblock sidebar %}
+
+{% block user_content %}
+    <h1>Your notifications</h1>
+
+    <ul class="list-group">
+        {% for notification in notifications %}
+            
+            {% if notification.notification_type == 'System-feature' %}
+                {% if notification.is_read %}
+                    <li class="list-group-item d-flex justify-content-between align-items-start my-2">
+                        <div class="ms-2 me-auto">
+                            <div>
+                                New features offered: {{ notification.content }}
+                            </div>
+                        </div>
+                        <span class="badge bg-success rounded-pill">✔</span>
+                    </li>
+                {% else %}
+                    <li class="notification-instance list-group-item d-flex justify-content-between align-items-start my-2" data-notification-id="{{ notification.id }}" id="notificationInstance-{{ notification.id }}">
+                        <div class="ms-2 me-auto">
+                            <div class="fw-bold" id="content-notificationInstance-{{ notification.id }}">
+                                New features offered: {{ notification.content }}
+                            </div>
+                        </div>
+                        <span class="badge bg-danger rounded-pill" id="badge-notificationInstance-{{ notification.id }}">!</span>
+                    </li>
+                {% endif %}
+            {% elif notification.notification_type == 'System-news' %}
+                {% if notification.is_read %}
+                    <li class="list-group-item d-flex justify-content-between align-items-start my-2">
+                        <div class="ms-2 me-auto">
+                            <div>
+                                Admin sent you a message: {{ notification.content }}
+                            </div>
+                        </div>
+                        <span class="badge bg-success rounded-pill">✔</span>
+                    </li>
+                {% else %}
+                    <li class="notification-instance list-group-item d-flex justify-content-between align-items-start my-2" data-notification-id="{{ notification.id }}" id="notificationInstance-{{ notification.id }}">
+                        <div class="ms-2 me-auto">
+                            <div class="fw-bold" id="content-notificationInstance-{{ notification.id }}">
+                                Admin sent you a message: {{ notification.content }}
+                            </div>
+                        </div>
+                        <span class="badge bg-danger rounded-pill" id="badge-notificationInstance-{{ notification.id }}">!</span>
+                    </li>
+                {% endif %}
+            {% elif notification.notification_type == 'Blog-react' %}
+                {% if notification.is_read %}
+                    <li class="list-group-item d-flex justify-content-between align-items-start my-2">
+                        <div class="ms-2 me-auto">
+                            <div>
+                                <a href="{% url "post-detail" notification.post.id %}">{{ notification.sending_user.profile.name }} reacted with a {{ notification.reaction }} to your Post {{ notification.post.title }}.</a>
+                            </div>
+                        </div>
+                        <span class="badge bg-success rounded-pill">✔</span>
+                    </li>
+                {% else %}
+                    <li class="notification-instance list-group-item d-flex justify-content-between align-items-start my-2" data-notification-id="{{ notification.id }}" id="notificationInstance-{{ notification.id }}">
+                        <div class="ms-2 me-auto">
+                            <div class="fw-bold" id="content-notificationInstance-{{ notification.id }}">
+                                <a href="{% url "post-detail" notification.post.id %}">{{ notification.sending_user.profile.name }} reacted with a {{ notification.reaction }} to your Post {{ notification.post.title }}.</a>
+                            </div>
+                        </div>
+                        <span class="badge bg-danger rounded-pill" id="badge-notificationInstance-{{ notification.id }}">!</span>
+                    </li>
+                {% endif %}
+            {% elif notification.notification_type == 'Blog-comment' %}
+                {% if notification.is_read %}
+                    <li class="list-group-item d-flex justify-content-between align-items-start my-2">
+                        <div class="ms-2 me-auto">
+                            <div>
+                                <a href="{% url "post-detail" notification.post.id %}">{{ notification.sending_user.profile.name }} commented your Post {{ notification.post.title }}.</a>
+                            </div>
+                        </div>
+                        <span class="badge bg-success rounded-pill">✔</span>
+                    </li>
+                {% else %}
+                    <li class="notification-instance list-group-item d-flex justify-content-between align-items-start my-2" data-notification-id="{{ notification.id }}" id="notificationInstance-{{ notification.id }}">
+                        <div class="ms-2 me-auto">
+                            <div class="fw-bold" id="content-notificationInstance-{{ notification.id }}">
+                                <a href="{% url "post-detail" notification.post.id %}">{{ notification.sending_user.profile.name }} commented your Post {{ notification.post.title }}.</a>
+                            </div>
+                        </div>
+                        <span class="badge bg-danger rounded-pill" id="badge-notificationInstance-{{ notification.id }}">!</span>
+                    </li>
+                {% endif %}
+            {% elif notification.notification_type == 'Blog-share' %}
+                {% if notification.is_read %}
+                    <li class="list-group-item d-flex justify-content-between align-items-start my-2">
+                        <div class="ms-2 me-auto">
+                            <div>
+                                {{ notification.sending_user.profile.name }} shared your Post {{ notification.post.title }}.
+                            </div>
+                        </div>
+                        <span class="badge bg-success rounded-pill">✔</span>
+                    </li>
+                {% else %}
+                    <li class="notification-instance list-group-item d-flex justify-content-between align-items-start my-2" data-notification-id="{{ notification.id }}" id="notificationInstance-{{ notification.id }}">
+                        <div class="ms-2 me-auto">
+                            <div class="fw-bold" id="content-notificationInstance-{{ notification.id }}">
+                                {{ notification.sending_user.profile.name }} shared your Post {{ notification.post.title }}.
+                            </div>
+                        </div>
+                        <span class="badge bg-danger rounded-pill" id="badge-notificationInstance-{{ notification.id }}">!</span>
+                    </li>
+                {% endif %}
+            {% elif notification.notification_type == 'User-friend' %}
+                {% if notification.is_read %}
+                    <li class="list-group-item d-flex justify-content-between align-items-start my-2">
+                        <div class="ms-2 me-auto">
+                            <div>
+                                {{ notification.sending_user.profile.name}} sends you a friend request.
+                            </div>
+                        </div>
+                        <span class="badge bg-success rounded-pill">✔</span>
+                    </li>
+                {% else %}
+                    <li class="notification-instance list-group-item d-flex justify-content-between align-items-start my-2" data-notification-id="{{ notification.id }}" id="notificationInstance-{{ notification.id }}">
+                        <div class="ms-2 me-auto">
+                            <div class="fw-bold" id="content-notificationInstance-{{ notification.id }}">
+                                {{ notification.sending_user.profile.name}} sends you a friend request.
+                            </div>
+                        </div>
+                        <span class="badge bg-danger rounded-pill" id="badge-notificationInstance-{{ notification.id }}">!</span>
+                    </li>
+                {% endif %}
+            {% elif notification.notification_type == 'User-task' %}
+                {% if notification.is_read %}
+                <li class="list-group-item d-flex justify-content-between align-items-start my-2">
+                        <div class="ms-2 me-auto">
+                            <div>
+                                Your task {{ notification.task.title }} is overdue.
+                            </div>
+                        </div>
+                        <span class="badge bg-success rounded-pill">✔</span>
+                    </li>
+                {% else %}
+                    <li class="notification-instance list-group-item d-flex justify-content-between align-items-start my-2" data-notification-id="{{ notification.id }}" id="notificationInstance-{{ notification.id }}">
+                        <div class="ms-2 me-auto">
+                            <div class="fw-bold" id="content-notificationInstance-{{ notification.id }}">
+                                Your task {{ notification.task.title }} is overdue.
+                            </div>
+                        </div>
+                        <span class="badge bg-danger rounded-pill" id="badge-notificationInstance-{{ notification.id }}">!</span>
+                    </li>
+                {% endif %}        
+            {% endif %}
+        {% endfor %}
+    </ul>
+{% endblock user_content %}

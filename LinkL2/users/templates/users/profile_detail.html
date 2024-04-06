@@ -1,4 +1,34 @@
 {% extends "blog/base.html" %}
+
+{% block sidebar %}
+    <div class="content-section">
+        <h3>Our Sidebar</h3>
+        <div class="list-group">
+            <a href="{% url "user-notifications" user.username %}">
+                <button type="button" class="list-group-item list-group-item-action list-group-item-dark">
+                Notifications
+                <span class="badge bg-primary rounded-pill">{{ notification_count }}</span> 
+                </button>
+            </a>
+            <a href="{% url "user-notifications" user.username %}">
+                <button type="button" class="list-group-item list-group-item-action list-group-item-dark">
+                Friends
+                </button>
+            </a>
+            <a href="{% url "user-tasks" user.username %}">
+                <button type="button" class="list-group-item list-group-item-action list-group-item-dark">
+                Tasks
+                </button>
+            </a>
+            <a href="#">
+                <button type="button" class="list-group-item list-group-item-action list-group-item-dark">
+                Calendar
+                </button>
+            </a>
+        </div>
+    </div>
+{% endblock sidebar %}
+
 {% block content %}
     <div class="content-section">
         <img src="{{ object.avatar.image.url }}" class="rounded-circle account-img">
@@ -11,6 +41,7 @@
             <a href="{% url "user-videos" object.user.username %}" class="btn btn-outline-secondary btn-lg">Videos</a>            
         </div>
     </div>
+    {% block user_content %}
     <h1>Profile</h1>
     <div class="content-section">
         <div class="media-body">
@@ -44,4 +75,5 @@
             <a class="btn btn-block btn-primary" href="{% url "profile-update" object.user.username%}">Edit Profile</a>
         </div>
     </div>
+    {% endblock user_content %}
 {% endblock content %} 
