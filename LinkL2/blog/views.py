@@ -1,7 +1,6 @@
 from typing import Any
 from django.contrib.auth.models import User
 from django.db.models.base import Model as Model
-from django.db.models.query import QuerySet
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.http import HttpResponse, JsonResponse
@@ -15,11 +14,10 @@ from django.views.generic import (
     )
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from .forms import PostCreateUpdateForm
-from django.contrib import messages
-import pprint
 from .models import React, Comment
+from sidebar.models import Notification
 
-# Home page - CBV
+
 class PostListView(LoginRequiredMixin, ListView):
     upload_post = False
 
@@ -57,11 +55,9 @@ class PostListView(LoginRequiredMixin, ListView):
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['upload_post'] = self.upload_post
-        if self.upload_post:
-            context['post_upload_form'] = PostUploadForm()
         context['latest_reacts_dict'] = self.get_latest_reacts(self.request.user, self.object_list)
         context['comments_dict'] = self.get_comments_dict()
+        context['notification_count'] = Notification.objects.filter(receiving_user=self.request.user, is_read=False).count()
         return context
 
 
@@ -104,19 +100,8 @@ class UserPostListView(LoginRequiredMixin, ListView):
         context['latest_reacts_dict'] = self.get_latest_reacts(viewing_user, self.object_list)
         context['comments_dict'] = self.get_comments_dict()
         context['viewing_user'] = viewing_user
+        context['notification_count'] = Notification.objects.filter(receiving_user=self.request.user, is_read=False).count()
         return context
-
-
-def save_reaction(request):
-    if request.method == 'POST':
-        user_id = request.POST.get('user_id')
-        post_id = request.POST.get('post_id')
-        reaction_type = request.POST.get('reaction')
-        react = React(user_id = user_id, post_id = post_id, reaction = reaction_type)
-        react.save()
-        return JsonResponse({'status': 'success'})
-    else:
-        return JsonResponse({'status': 'error'})
     
 
 class PostDetailView(LoginRequiredMixin, DetailView):
@@ -125,6 +110,11 @@ class PostDetailView(LoginRequiredMixin, DetailView):
     def get_object(self, queryset=None):
         uuid = self.kwargs.get('id')
         return get_object_or_404(Post, id=uuid)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['notification_count'] = Notification.objects.filter(receiving_user=self.request.user, is_read=False).count()
+        return context
 
 
 class PostCreateView(LoginRequiredMixin, CreateView):
@@ -138,7 +128,11 @@ class PostCreateView(LoginRequiredMixin, CreateView):
         instance.save()
         PostImage(post=instance, image=self.request.FILES.get('image')).save()
         return super().form_valid(form)
-
+        
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['notification_count'] = Notification.objects.filter(receiving_user=self.request.user, is_read=False).count()
+        return context
 
 
 class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
@@ -160,6 +154,11 @@ class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     def test_func(self):
         post = self.get_object()
         return post.author == self.request.user
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['notification_count'] = Notification.objects.filter(receiving_user=self.request.user, is_read=False).count()
+        return context
 
 
 class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
@@ -173,7 +172,66 @@ class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     def test_func(self):
         post = self.get_object()
         return post.author == self.request.user
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['notification_count'] = Notification.objects.filter(receiving_user=self.request.user, is_read=False).count()
+        return context
 
-# About page
 def about(request):
     return render(request, 'blog/about.html', context={'title': 'About'})
+
+
+def save_reaction(request):
+    if request.method == 'POST':
+        user_id = request.POST.get('user_id')
+        post_id = request.POST.get('post_id')
+        reaction_type = request.POST.get('reaction')
+        react = React(user_id = user_id, post_id = post_id, reaction = reaction_type)
+        react.save()
+        reacted_post = Post.objects.get(id=post_id)
+        sending_user = request.user
+        receiving_user = reacted_post.author
+        Notification.objects.create(sending_user=sending_user, receiving_user=receiving_user, notification_type='Blog-react', post=reacted_post, reaction=reaction_type)
+        return JsonResponse({'status': 'success'})
+    else:
+        return JsonResponse({'status': 'error'})
+    
+def share_post(request):
+    if request.method == 'POST':
+        user_id = request.POST.get('user_id')
+        post_id = request.POST.get('post_id')
+        shared_post = Post.objects.get(id=post_id)
+        new_post = Post.objects.create(
+            author = User.objects.get(id=user_id),
+            title = shared_post.title,
+            content = shared_post.content
+        )
+        new_post.save()
+        if hasattr(shared_post, 'postimage'):
+            PostImage.objects.create(post=new_post, image=shared_post.postimage.image).save()
+        Notification.objects.create(sending_user=request.user, receiving_user=shared_post.author, notification_type='Blog-share', post=shared_post)
+        return JsonResponse({'status': 'success'})
+    else:
+        print('share_post API accessed')
+        return JsonResponse({'status': 'error'})
+
+def check_notification(request):
+    if request.method == 'POST':
+        notification_id = request.POST.get('notification_id')
+        checked_notification = Notification.objects.get(id=notification_id)
+        checked_notification.is_read = True
+        checked_notification.save()
+        return JsonResponse({'status': 'success'})
+    else:
+        return JsonResponse({'status': 'error'})
+    
+def upload_comment(request):
+    if request.method == 'POST':
+        user_id = request.POST.get('user_id')
+        post_id = request.POST.get('post_id')
+        comment_content = request.POST.get('comment_content')
+        Comment.objects.create(user_id=user_id, post_id=post_id, comment=comment_content)
+        return JsonResponse({"status": "success"})
+    else:
+        return JsonResponse({"status": "error"})

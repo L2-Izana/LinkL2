@@ -20,45 +20,45 @@
     <link rel="icon" type="image/x-icon" href="/media/favicon.ico">
 </head>
 <body>
-    <!-- Additional navigational bar -->
+
+    <!-- Navigation bar -->
     <header class="site-header">
       <nav class="navbar navbar-expand-md navbar-dark bg-steel fixed-top">
-          <div class="container">
-              <a class="navbar-brand mr-4" href="{% url "blog-home" %}" style="color: #1877f2;">LinkL2</a>
-              <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggle" aria-controls="navbarToggle" aria-expanded="false" aria-label="Toggle navigation">
-                  <span class="navbar-toggler-icon"></span>
-              </button>
-              <div class="collapse navbar-collapse" id="navbarToggle">
-                {% if user.is_authenticated %}
-                  <!-- Navbar Left Side -->
-                  <div class="navbar-nav mr-auto">
-                    <a class="nav-item nav-link" href="{% url "blog-home" %}">Home</a>
-                    <a class="nav-item nav-link" href="{% url "blog-about" %}">About</a>
-                    <a class = "nav-item nav-link" href="{% url "user-profile" user.username%}">Profile</a>
-                  </div>
-                  
-                  <!-- Navbar Right Side -->
-                  <div class="navbar-nav ms-md-auto">
-                    <form class="nav-item nav-link" method="post" action="{% url "logout" %}">
-                      {% csrf_token %}
-                      <button type="submit" class="btn btn-link nav-item nav-link">
-                        Log Out
-                      </button>
-                    </form>
-                  </div>
-                {% endif %}
-              </div>
-          </div>
+        <div class="container">
+            <a class="navbar-brand mr-4" href="{% url "blog-home" %}" style="color: #1877f2;">LinkL2</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggle" aria-controls="navbarToggle" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarToggle">
+              {% if user.is_authenticated %}
+                <!-- Navbar Left Side -->
+                <div class="navbar-nav mr-auto">
+                  <a class="nav-item nav-link" href="{% url "blog-home" %}">Home</a>
+                  <a class="nav-item nav-link" href="{% url "blog-about" %}">About</a>
+                  <a class = "nav-item nav-link" href="{% url "user-profile" user.username%}">Profile</a>
+                </div>
+                
+                <!-- Navbar Right Side -->
+                <div class="navbar-nav ms-md-auto">
+                  <form class="nav-item nav-link" method="post" action="{% url "logout" %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-link nav-item nav-link">
+                      Log Out
+                    </button>
+                  </form>
+                </div>
+              {% endif %}
+            </div>
+        </div>
       </nav>
-  </header>
+    </header>
     
-    <!-- Content (container class for centralization)-->
     <main role="main" class="container">
         <div class="row">
-          <div class="col-md-8">
+          <div class="col-md-7">
             {% if messages %}
               {% for message in messages  %}
-                <div class="alert alert-{{ message.tags }}">
+                <div id="alert-message" class="alert alert-{{ message.tags }}">
                   {{ message }}
                 </div>
               {% endfor %}
@@ -66,20 +66,11 @@
             {% block content %}{% endblock %}
           </div>
           <div class="col-md-4">
-            <div class="content-section">
-              <h3>Our Sidebar</h3>
-                  <ul class="list-group">
-                      <li class="list-group-item">Notifications</li>
-                      <li class="list-group-item">Friends</li>
-                      <li class="list-group-item">Tasks</li>
-                      <li class="list-group-item">Calendar</li>
-                  </ul>
-              </p>
+              {% block sidebar %}{% endblock sidebar %}
           </div>
         </div>
     </main>
 
-    <!-- Pagination controls -->
     {% block pagination_controls %}{% endblock %}
 
     <!-- Bootstrap Bundle with Popper -->

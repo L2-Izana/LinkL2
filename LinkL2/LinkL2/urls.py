@@ -38,6 +38,9 @@ urlpatterns = [
     path('users/', include('users.urls')),
 
     # API
-    path('blog/api/save_reaction/', blog_views.save_reaction, name='save-reaction')
+    path('blog/api/save_reaction/', blog_views.save_reaction, name='save-reaction'),
+    path('blog/api/share_post/', blog_views.share_post, name='share-post'),
+    path('api/check_notification/', blog_views.check_notification, name='check-notification'),
+    path('api/upload_comment/', blog_views.upload_comment, name='upload-comment')
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)\
  + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

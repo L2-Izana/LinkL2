@@ -1,7 +1,7 @@
 {% extends "blog/base.html" %}
 {% load crispy_forms_tags %}
 {% load custom_filters %}
-{% comment %} Specific Style {% endcomment %}
+
 {% block styles %}
     <style>
         .reaction-comment {
@@ -51,14 +51,23 @@
         
         .image-wrapper {
             flex: none; 
-            margin-right: 10px;
         }
         
         .text-wrapper {
             max-width: calc(100% - 60px);
             overflow-wrap: break-word;
         }
-        
+        .prompt {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 5px;
+            display: none;
+        }
     </style>
 {% endblock styles %}
 
@@ -82,104 +91,164 @@
         </article>
     {% endblock viewing_user_toggle %}
 
-    <!-- Post List View -->
     {% for post, latest_react in latest_reacts_dict.items %}
-    <article class="media content-section">
-        <img class="rounded-circle article-img" src="{{ post.author.profile.avatar.image.url }}">
-        <div class="media-body">
-            <div class="article-metadata">
-                <a class="mr-2" href="{% url "user-posts" post.author.username %}">{{ post.author.profile.name }}<a>
-                <small class="text-muted">{{ post.date_posted|date:"F d, Y" }}</small>
+        <article class="media content-section">
+            <div class="row">
+                <div class="col">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <img class="rounded-circle article-img" src="{{ post.author.profile.avatar.image.url }}">
+                        <span class="dropdown">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton2" data-bs-toggle="dropdown" aria-expanded="false">
+                                ⚙
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
+                                <li><a class="dropdown-item" href="{% url "post-update" post.id %}">Edit</a></li>
+                                <li><a class="dropdown-item" href="{% url "post-delete" post.id %}">Delete</a></li>
+                                <li><a class="dropdown-item" href="{% url "post-detail" post.id %}">Detail</a></li>
+                            </ul>
+                        </span>
+                    </div>
+                </div>
             </div>
-            <h2><a class="article-title" href="{% url "post-detail" id=post.id %}">{{ post.title }}</a></h2>
-            <p class="article-content">{{ post.content }}</p>
-            {% if post.postimage and post.postimage.image and post.postimage.image.url %}
-                <img src="{{ post.postimage.image.url }}" class="img-fluid" style="min-width: 100%">
-            {% endif %}
-            
-            <div class="reaction-comment">
-                <button type="button" class="btn reaction-button" onmouseover="showReactions('{{ post.id }}')" onmouseout="hideReactions('{{ post.id }}')">                
-                    {% if latest_react %}
-                        {% if latest_react == "Like" %}
-                        <span id="post-{{ post.id }}">👍 Like</span>
-                        {% elif latest_react == "Love" %}
-                        <span id="post-{{ post.id }}">❤️ Love</span>
-                        {% elif latest_react == "Haha" %}
-                        <span id="post-{{ post.id }}">😂 Haha</span>
-                        {% elif latest_react == "Wow" %}
-                        <span id="post-{{ post.id }}">😮 Wow </span>
-                        {% elif latest_react == "Sad" %}
-                        <span id="post-{{ post.id }}">😢 Sad</span>
-                        {% elif latest_react == "Angry" %}
-                        <span id="post-{{ post.id }}">😠 Angry</span>
+            <div class="media-body">
+                <div class="article-metadata">
+                    <a class="mr-2" href="{% url "user-posts" post.author.username %}">{{ post.author.profile.name }}<a>
+                    <small class="text-muted">{{ post.date_posted|date:"F d, Y" }}</small>
+                </div>
+                <h2><a class="article-title" href="{% url "post-detail" id=post.id %}">{{ post.title }}</a></h2>
+                <p class="article-content">{{ post.content }}</p>
+                {% if post.postimage and post.postimage.image and post.postimage.image.url %}
+                    <img src="{{ post.postimage.image.url }}" class="img-fluid" style="width: 80%">
+                {% endif %}  
+
+                <div class="reaction-comment">
+                    <button type="button" class="btn reaction-button btn-outline-light mx-1" onmouseover="showReactions('{{ post.id }}')" onmouseout="hideReactions('{{ post.id }}')">                
+                        {% if latest_react %}
+                            {% if latest_react == "Like" %}
+                                <span id="post-{{ post.id }}" style="color: blue">👍 Like</span>
+                            {% elif latest_react == "Love" %}
+                                <span id="post-{{ post.id }}" style="color: pink">❤️ Love</span>
+                            {% elif latest_react == "Haha" %}
+                                <span id="post-{{ post.id }}" style="color: yellow">😂 Haha</span>
+                            {% elif latest_react == "Wow" %}
+                                <span id="post-{{ post.id }}" style="color: orange">😮 Wow</span>
+                            {% elif latest_react == "Sad" %}
+                                <span id="post-{{ post.id }}" style="color: #FFA500">😢 Sad</span>
+                            {% elif latest_react == "Angry" %}
+                                <span id="post-{{ post.id }}" style="color: red">😠 Angry</span>
+                            {% endif %}
+                        {% else %}
+                            <span id="post-{{ post.id }}">React</span>     
                         {% endif %}
-                    {% else %}
-                        <span id="post-{{ post.id }}">React</span>     
-                    {% endif %}
-                    <div class="reaction-options hidden" id="reaction-options-{{ post.id }}">
-                        <div class="reaction-option" data-user-id="{{ user.id }}" data-post-id="{{ post.id }}" data-reaction="Like" onclick="handleReaction('Like', '{{post.id}}')">👍</div> <!-- Like -->
-                        <div class="reaction-option" data-user-id="{{ user.id }}" data-post-id="{{ post.id }}" data-reaction="Love" onclick="handleReaction('Love', '{{post.id}}')">❤️</div> <!-- Love -->
-                        <div class="reaction-option" data-user-id="{{ user.id }}" data-post-id="{{ post.id }}" data-reaction="Haha" onclick="handleReaction('Haha', '{{post.id}}')">😂</div> <!-- Haha -->
-                        <div class="reaction-option" data-user-id="{{ user.id }}" data-post-id="{{ post.id }}" data-reaction="Wow" onclick="handleReaction('Wow', '{{post.id}}')">😮</div> <!-- Wow -->
-                        <div class="reaction-option" data-user-id="{{ user.id }}" data-post-id="{{ post.id }}" data-reaction="Sad" onclick="handleReaction('Sad', '{{post.id}}')">😢</div> <!-- Sad -->
-                        <div class="reaction-option" data-user-id="{{ user.id }}" data-post-id="{{ post.id }}" data-reaction="Angry" onclick="handleReaction('Angry', '{{post.id}}')">😠</div> <!-- Angry -->
-                      </div>
-                </button>        
-                <button type="button" class="btn">💬 Comment</button>  
-                <button type="button" class="btn">Share</button></div>      
-            <div class="comments">
-                {% with comments_dict|lookup:post as user_comment_records %}
-                    {% for user_comment_record in user_comment_records %}
-                    {% with user_rec=user_comment_record|get_user comment_rec=user_comment_record|get_comment %}
-                    <div class="comment-box">
-                        <div class="image-wrapper">
-                            <img class="rounded-circle article-img-comment" src="{{ user_rec.profile.avatar.image.url }}">
+                        
+                        <div class="reaction-options hidden" id="reaction-options-{{ post.id }}">
+                            <div class="reaction-option" data-user-id="{{ user.id }}" data-post-id="{{ post.id }}" data-reaction="Like" onclick="handleReaction('Like', '{{post.id}}')">👍</div> <!-- Like -->
+                            <div class="reaction-option" data-user-id="{{ user.id }}" data-post-id="{{ post.id }}" data-reaction="Love" onclick="handleReaction('Love', '{{post.id}}')">❤️</div> <!-- Love -->
+                            <div class="reaction-option" data-user-id="{{ user.id }}" data-post-id="{{ post.id }}" data-reaction="Haha" onclick="handleReaction('Haha', '{{post.id}}')">😂</div> <!-- Haha -->
+                            <div class="reaction-option" data-user-id="{{ user.id }}" data-post-id="{{ post.id }}" data-reaction="Wow" onclick="handleReaction('Wow', '{{post.id}}')">😮</div> <!-- Wow -->
+                            <div class="reaction-option" data-user-id="{{ user.id }}" data-post-id="{{ post.id }}" data-reaction="Sad" onclick="handleReaction('Sad', '{{post.id}}')">😢</div> <!-- Sad -->
+                            <div class="reaction-option" data-user-id="{{ user.id }}" data-post-id="{{ post.id }}" data-reaction="Angry" onclick="handleReaction('Angry', '{{post.id}}')">😠</div> <!-- Angry -->
                         </div>
-                        <div class="text-wrapper">
-                            <a href="{% url "user-profile" user_rec.username %}">{{ user_rec.profile.name }}</a>
-                            <br>
-                            <small>{{ comment_rec }}</small>
-                        </div>
-                    </div>                    
-                    {% endwith %}
-                    {% endfor %}
-                {% endwith %}
-                <div class="comment-upload">
-                    <div class="image-wrapper">
-                        <img class="rounded-circle article-img-comment" src="{{ user.profile.avatar.image.url }}">
+                    </button>
+
+                    <button type="button" class="btn btn-outline-light mx-1">💬 Comment</button>  
+                    <button type="button" class="btn share-button btn-outline-light mx-1" data-user-id="{{ user.id }}" data-post-id="{{ post.id }}" onclick="handleShareButton('{{ user.id }}', '{{ post.id }}')">&#9735; Share</button></div>
+                    <div class="prompt" id="sharePrompt">You shared this post</div>
+                </div>
+
+                <div class="comment-section mt-4">
+                    <div class="comment-group">
+                        {% with comments_dict|lookup:post as user_comment_records %}
+                            {% for user_comment_record in user_comment_records %}
+                                {% with user_rec=user_comment_record|get_user comment_rec=user_comment_record|get_comment %}
+                                    <div class="comment"  data-avatar-url="{{ user_rec.profile.avatar.image.url }}">
+                                        <div class="comment-box">
+                                            <div class="image-wrapper">
+                                                <img class="rounded-circle article-img-comment" src="{{ user_rec.profile.avatar.image.url }}">
+                                            </div>
+                                            <div class="text-wrapper">
+                                                <a href="{% url "user-profile" user_rec.username %}">{{ user_rec.profile.name }}</a>
+                                                <br>
+                                                <small>{{ comment_rec }}</small>
+                                            </div>
+                                        </div>
+                                    </div>                    
+                                {% endwith %}
+                            {% endfor %}
+                        {% endwith %}
                     </div>
-                    <div class="text-wrapper">
-                        <a href="{% url "user-profile" user.username %}">{{ user.profile.name }}</a>
-                    </div>
-                </div></div>
-        </div>
-    </article>
+                    <div class="comment-upload mt-1">
+                        <form class="row g-2">
+                            <div class="col-md-1">
+                                <div class="image-wrapper">
+                                    <img class="rounded-circle article-img-comment" src="{{ user.profile.avatar.image.url }}">
+                                </div>
+                            </div>
+                            <div class="col-md-10">
+                              <label class="visually-hidden">Comment</label>
+                              <input type="text" class="form-control" placeholder="Comment" id="comment-upload-button-{{ post.id }}">
+                            </div>
+                            <div class="comment-upload-button col-md-1  btn btn-success rounded-pill" data-user-id="{{ user.id }}" data-post-id="{{ post.id }}" data-user-name="{{ user.profile.name }}"
+                            data-username="{{ user.username }}"
+                            data-avatar-url="{{ user.profile.avatar.image.url }}" id="comment-upload-button-{{ post.id }}">⇧
+                            </div>
+                        </form>
+                </div>
+        </article>
     {% endfor %}
 {% endblock content%}
+
+{% block sidebar %}
+    <div class="content-section">
+        <h3>Our Sidebar</h3>
+        <div class="list-group">
+            <a href="{% url "user-notifications" user.username %}">
+                <button type="button" class="list-group-item list-group-item-action list-group-item-dark">
+                Notifications
+                <span class="badge bg-primary rounded-pill">{{ notification_count }}</span> 
+                </button>
+            </a>
+            <a href="{% url "user-notifications" user.username %}">
+                <button type="button" class="list-group-item list-group-item-action list-group-item-dark">
+                Friends
+                </button>
+            </a>
+            <a href="{% url "user-tasks" user.username %}">
+                <button type="button" class="list-group-item list-group-item-action list-group-item-dark">
+                Tasks
+                </button>
+            </a>
+            <a href="#">
+                <button type="button" class="list-group-item list-group-item-action list-group-item-dark">
+                Calendar
+                </button>
+            </a>
+        </div>
+    </div>
+{% endblock sidebar %}
+
 {% block pagination_controls %}
-<div class="pagination-controls" style="display: flex;
-justify-content: center;">
-{% if is_paginated %}
+    <div class="pagination-controls" style="display: flex;
+    justify-content: center;">
+    {% if is_paginated %}
     
-    {% if page_obj.has_previous %}
-    <a href="?page=1" class="btn btn-outline-info mb-4">First</a>
-    <a href="?page={{ page_obj.previous_page }}" class="btn btn-outline-info mb-4">Previous</a>
-    {% endif %}
-
-    {% for num in page_obj.paginator.page_range %}
-        {% if page_obj.number == num %}
-            <a href="?page={{ num }}" class="btn btn-info mb-4"> {{ num }}</a>
-        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-            <a href="?page={{ num }}" class="btn btn-outline-info mb-4">{{ num }}</a>
+        {% if page_obj.has_previous %}
+        <a href="?page=1" class="btn btn-outline-info mb-4">First</a>
+        <a href="?page={{ page_obj.previous_page }}" class="btn btn-outline-info mb-4">Previous</a>
         {% endif %}
-    {% endfor %}
 
-    {% if page_obj.has_next %}
-    <a href="?page={{ page_obj.next_page_number }}" class="btn btn-outline-info mb-4">Next</a>
-    <a href="?page={{ page_obj.paginator.num_pages }}" class="btn btn-outline-info mb-4">Last</a>
+        {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+                <a href="?page={{ num }}" class="btn btn-info mb-4"> {{ num }}</a>
+            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                <a href="?page={{ num }}" class="btn btn-outline-info mb-4">{{ num }}</a>
+            {% endif %}
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}" class="btn btn-outline-info mb-4">Next</a>
+        <a href="?page={{ page_obj.paginator.num_pages }}" class="btn btn-outline-info mb-4">Last</a>
+        {% endif %}
     {% endif %}
-{% endif %}
-</div>
+    </div>
 {% endblock pagination_controls %}
-
-

@@ -16,3 +16,32 @@
         </form>
     </div>
 {% endblock content %}
+
+{% block sidebar %}
+    <div class="content-section">
+        <h3>Our Sidebar</h3>
+        <div class="list-group">
+            <a href="{% url "user-notifications" user.username %}">
+                <button type="button" class="list-group-item list-group-item-action list-group-item-dark">
+                Notifications
+                <span class="badge bg-primary rounded-pill">{{ notification_count }}</span> 
+                </button>
+            </a>
+            <a href="{% url "user-notifications" user.username %}">
+                <button type="button" class="list-group-item list-group-item-action list-group-item-dark">
+                Friends
+                </button>
+            </a>
+            <a href="{% url "user-tasks" user.username %}">
+                <button type="button" class="list-group-item list-group-item-action list-group-item-dark">
+                Tasks
+                </button>
+            </a>
+            <a href="#">
+                <button type="button" class="list-group-item list-group-item-action list-group-item-dark">
+                Calendar
+                </button>
+            </a>
+        </div>
+    </div>
+{% endblock sidebar %}

@@ -1,9 +1,7 @@
 from django.contrib.auth.models import User
-from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render, get_object_or_404
 from django.urls import reverse_lazy
 from django.contrib import messages
-from django.contrib.auth.forms import UserCreationForm
 from .forms import UserRegisterForm, UserProfileAvatarUpdateForm
 from django.http import HttpResponse
 from pprint import pprint
@@ -11,6 +9,7 @@ from django.views.generic import DetailView, UpdateView, ListView
 from .models import Profile
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from blog.models import Post
+from sidebar.models import Notification
 
 def register(request):
     if request.method == 'POST':
@@ -32,6 +31,11 @@ class UserProfileView(DetailView):
         username = self.kwargs.get('username')
         user = get_object_or_404(User, username=username)
         return get_object_or_404(Profile, user=user)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['notification_count'] = Notification.objects.filter(receiving_user=self.request.user).count()
+        return context
 
 class UserProfileUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Profile
@@ -57,6 +61,11 @@ class UserProfileUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView)
     def get_success_url(self):
         return reverse_lazy('user-profile', kwargs={'username': self.kwargs.get('username')})
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['notification_count'] = Notification.objects.filter(receiving_user=self.request.user).count()
+        return context
+
 class UserPhotosListView(LoginRequiredMixin, ListView):
     model = Post
     template_name = "users/user_photos.html"
@@ -68,14 +77,17 @@ class UserPhotosListView(LoginRequiredMixin, ListView):
     
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
-        context['viewing_user'] = get_object_or_404(User, username=self.kwargs.get('username'))
+        viewing_user = get_object_or_404(User, username=self.kwargs.get('username'))
+        context['viewing_user'] = viewing_user
+        context['object'] = viewing_user.profile
+        context['notification_count'] = Notification.objects.filter(receiving_user=self.request.user).count()
         return context
-
-def photos(request, username):
-    return HttpResponse("Photos view of user")
 
 def friends(request, username):
     return HttpResponse("Friends view of user")
 
 def videos(request, username):
     return HttpResponse("Videos view of user")
+
+def tasks(request, username):
+    return HttpResponse("Tasks view of user")
