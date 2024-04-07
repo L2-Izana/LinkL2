@@ -6,7 +6,8 @@ from .models import Post, PostImage
 @receiver(post_save, sender=Post)
 def create_profile(sender, instance, created, **kwargs):
     if created:
-        PostImage.objects.create(post=instance)
+        if not instance.postimage:
+            PostImage.objects.create(post=instance)
 
 @receiver(post_save, sender=Post)
 def save_profile(sender, instance, **kwargs):
